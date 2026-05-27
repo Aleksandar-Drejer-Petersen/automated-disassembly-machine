@@ -1,0 +1,13 @@
+.claude/
+__pycache__/
+*.pyc
+*.pyo
+raspberry/__pycache__/
+**/__pycache__/
+*.pyc
+**/__pycache__/
+*.pyc
+raspberry/output/
+raspberry/vision_photos/
+raspberry/vision_current_run/
+*.csv
