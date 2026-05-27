@@ -30,19 +30,22 @@ const long  AXIS_STEPS_PER_REV    = 400;
 const float HOMING_RETRACT_MM     = 5.0;
 const long  SCREW_STEPS_PER_REV   = 1600;
 
-// FastAccelStepper on Timer1 — increase until motors lose torque or miss steps.
-// Start here and tune upward; DM542 drivers handle up to 200 kHz pulse rate.
-const float X_MAX_SPEED = 2500.0;
-const float X_ACCEL     = 2000.0;
-const float Y_MAX_SPEED = 2500.0;
-const float Y_ACCEL     = 2000.0;
-const float Z_MAX_SPEED = 2500.0;
-const float Z_ACCEL     = 2000.0;
-const float HOME_SPEED  = 2500.0;
-const float HOME_ACCEL  = 2000.0;
+// FastAccelStepper on Timer1 — hardware-interrupt driven, no software timing risk.
+// DM542 handles up to 200 kHz. NEMA 23 reliable torque band: up to ~900 RPM.
+// 400 steps/rev × 5mm pitch → 6000 steps/s = 75 mm/s = 900 RPM (safe ceiling).
+// KEY: accel must be proportionally high — low accel at high speed = missed steps
+// because the motor spends too long in the low-torque high-speed region.
+const float X_MAX_SPEED = 6000.0;   // was 2500 — 900 RPM, safe for DM542 + NEMA23
+const float X_ACCEL     = 5000.0;   // was 2000 — ramps fast, minimises time at peak speed
+const float Y_MAX_SPEED = 6000.0;   // was 2500
+const float Y_ACCEL     = 5000.0;   // was 2000
+const float Z_MAX_SPEED = 5000.0;   // was 2500 — Z is lighter, 750 RPM fine
+const float Z_ACCEL     = 4000.0;   // was 2000
+const float HOME_SPEED  = 4000.0;   // was 2500 — homing happens once, still saves ~5 s
+const float HOME_ACCEL  = 4000.0;   // was 2000
 
-const float SCREW_MAX_SPEED = 5000.0;
-const float SCREW_ACCEL     = 5000.0;
+const float SCREW_MAX_SPEED = 5000.0;   // AccelStepper software limit ~5000 on 16 MHz AVR
+const float SCREW_ACCEL     = 5000.0;   // was 5000 — unchanged
 
 const unsigned int STEP_PULSE_US         = 5;
 const float        VOLTAGE_DIVIDER_FACTOR = 1.2;
@@ -79,14 +82,14 @@ const float UNSCREW_MIN_PITCH_TRAVEL_MM    = 0.20;
 const float UNSCREW_SOCKET_ENGAGE_MM       = 1.5;
 const float UNSCREW_SOCKET_MIN_ROTATIONS   = 0.1;
 
-const float UNSCREW_Z_PROBE_SPEED   = 1500.0;
-const float UNSCREW_Z_PROBE_ACCEL   = 3000.0;
-const float UNSCREW_Z_FOLLOW_SPEED  = 2500.0;
-const float UNSCREW_Z_FOLLOW_ACCEL  = 6000.0;
-const float UNSCREW_Z_RETRACT_SPEED = 2500.0;
-const float UNSCREW_Z_RETRACT_ACCEL = 2000.0;
-const float UNSCREW_SCREW_SPEED     = 5000.0;
-const float UNSCREW_SCREW_ACCEL     = 3500.0;
+const float UNSCREW_Z_PROBE_SPEED   = 1500.0;   // keep slow — laser contact detection is sensitive
+const float UNSCREW_Z_PROBE_ACCEL   = 3000.0;   // unchanged
+const float UNSCREW_Z_FOLLOW_SPEED  = 4000.0;   // was 2500 — Z follows screw rotation upward
+const float UNSCREW_Z_FOLLOW_ACCEL  = 6000.0;   // unchanged — already high for responsive follow
+const float UNSCREW_Z_RETRACT_SPEED = 5000.0;   // was 2500 — retract is pure time, go fast
+const float UNSCREW_Z_RETRACT_ACCEL = 4000.0;   // was 2000
+const float UNSCREW_SCREW_SPEED     = 5000.0;   // AccelStepper ceiling — do not raise
+const float UNSCREW_SCREW_ACCEL     = 5000.0;   // was 3500 — faster ramp into unscrewing
 const float UNSCREW_ANALYSIS_SPEED  = 300.0;
 const float UNSCREW_ANALYSIS_ACCEL  = 200.0;
 
